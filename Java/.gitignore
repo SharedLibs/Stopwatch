@@ -1,0 +1,11 @@
+/**/.DS_Store
+/.idea/dictionaries
+/.idea/workspace.xml
+/bin
+/*.log
+/.project
+/.classpath
+/.settings
+/.externalToolBuilders
+/target
+/.tern-project
