@@ -4,7 +4,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.github.sharedlibs</groupId>
+    <groupId>com.github.sharedlibs</groupId>
     <artifactId>stopwatch-java</artifactId>
     <version>1.0.0-Beta1-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -91,11 +91,9 @@
                         </goals>
                     </execution>
                 </executions>
-                <!--
                 <configuration>
-                    <passphraseServerId>gpg.passphrase</passphraseServerId>
+                    <passphraseServerId>ossrh</passphraseServerId>
                 </configuration>
-                -->
             </plugin>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
