@@ -8,6 +8,19 @@
     <artifactId>stopwatch</artifactId>
     <version>1.0.0-Beta1</version>
 
+    <packaging>jar</packaging>
+
+    <name>Stopwatch</name>
+    <description>Measuring execution time of a code snippet, method and much more.</description>
+    <url>https://github.com/SharedLibs/Stopwatch</url>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>https://api.github.com/licenses/mit</url>
+        </license>
+    </licenses>
+
     <build>
         <plugins>
             <plugin>
