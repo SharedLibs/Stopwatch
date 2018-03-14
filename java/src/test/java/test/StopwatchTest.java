@@ -35,17 +35,28 @@ public class StopwatchTest {
     private static final long WAIT_MAX = 500;
     private static final double TOLERANCE = 1.15;
 
+    static private long sleep() throws InterruptedException {
+        long wait = nextLong(WAIT_MIN, WAIT_MAX);
+        Thread.sleep(wait);
+
+        return wait;
+    }
+
+    static private void assertWait(long wait, long value) {
+        assertTrue(Range.between((double) wait, wait * TOLERANCE).contains((double) value));
+    }
+
     @Test
     public void startAndStop() throws InterruptedException {
         Stopwatch sw = Stopwatch.start();
 
         long wait = sleep();
-        long stop = sw.stop();
+        long stop = sw.pause().elapsed();
         assertEquals(stop, sw.elapsed());
         assertWait(wait, stop);
 
         sleep();
-        assertEquals(stop, sw.stop());
+        assertEquals(stop, sw.pause());
         assertEquals(stop, sw.elapsed());
     }
 
@@ -58,25 +69,30 @@ public class StopwatchTest {
         assertWait(sleep(), sw.split(null));
         assertWait(sleep(), sw.split(""));
 
-        sw.stop();
+        sw.pause();
         try {
             sw.split("");
             fail();
         } catch (StopwatchException cause) {
         }
 
-        sw.restart();
+        sw.resume();
         assertWait(sleep(), sw.split(""));
     }
 
-    static private long sleep() throws InterruptedException {
-        long wait = nextLong(WAIT_MIN, WAIT_MAX);
-        Thread.sleep(wait);
+    @Test
+    public void restart() throws InterruptedException {
+        Stopwatch sw = Stopwatch.start();
 
-        return wait;
-    }
+        sleep();
+        sw.pause();
+        sleep();
+        sw.restart();
+        assertWait(sleep(), sw.pause().elapsed());
 
-    static private void assertWait(long wait, long value) {
-        assertTrue(Range.between((double) wait, wait * TOLERANCE).contains((double) value));
+        sleep();
+        sw.restart();
+        sw.restart();
+        assertWait(sleep(), sw.split(""));
     }
 }

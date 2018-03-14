@@ -23,8 +23,8 @@ package com.github.sharedlibs.stopwatch;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
 
 public final class Stopwatch {
 
@@ -34,14 +34,13 @@ public final class Stopwatch {
 
     private List<Split> splits = new ArrayList();
 
-    private long start;
+    private long startTime;
 
-    private long lastSplit = NULL;
+    private long splitTime;
 
-    private long stop = NULL;
+    private long pauseTime;
 
     private Stopwatch() {
-        start = now();
     }
 
     private static long now() {
@@ -49,7 +48,7 @@ public final class Stopwatch {
     }
 
     public static Stopwatch start() {
-        return new Stopwatch();
+        return new Stopwatch().restart();
     }
 
     private static List<Split> getSharedSplits() {
@@ -69,79 +68,87 @@ public final class Stopwatch {
     }
 
     public static void printSharedSplits() {
-        printSharedSplits(null);
+        printSplits(getSharedSplits());
     }
 
-    public static void printSharedSplits(Consumer<Split> consumer) {
-        printSplits(consumer, getSharedSplits());
+    private static void printSplits(List<Split> splits) {
+        System.out.print(splits);
     }
 
-    private static void printSplits(Consumer<Split> consumer, List<Split> splits) {
-        if (consumer != null) {
-            splits.forEach(split -> consumer.accept(split));
-        } else {
-            System.out.print(splits);
-        }
+    public static List<Split> sharedSplits() {
+        return Collections.unmodifiableList(getSharedSplits());
+    }
+
+    public void printSplits() {
+        printSplits(getSplits());
     }
 
     public long elapsed() {
-        return (stop == NULL ? now() : stop) - start;
+        return (pauseTime == NULL ? now() : pauseTime) - startTime;
     }
 
     public long split(String label) throws StopwatchException {
         long now = now();
 
-        if (stop != NULL) {
-            throw new StopwatchException("Stopwatch is stopped");
+        if (pauseTime != NULL) {
+            throw new StopwatchException("Stopwatch is paused");
         }
 
-        //split = now();
-        //stop = now();
-
-        long elapsed = now - (lastSplit != NULL ? lastSplit : start);
-        lastSplit = now;
-
+        long elapsed = now - (splitTime != NULL ? splitTime : startTime);
+        splitTime = now;
         addSplit(new Split(label, elapsed));
-//        restart();
 
         return elapsed;
     }
 
-    public long stop() {
-        if (stop == NULL) {
-            stop = now();
+    public Stopwatch pause() {
+        if (isRunning()) {
+            pauseTime = now();
         }
 
-        return stop - start;
+        return this;
     }
 
-    public Stopwatch restart() {
-        //start = now();
-//        split = NULL;
-        stop = NULL;
+    public Stopwatch resume() {
+        if (!isRunning()) {
+            long now = now();
+            long stopped = now - pauseTime;
+
+            startTime += stopped;
+            splitTime = (splitTime == NULL ? NULL : splitTime + stopped);
+            pauseTime = NULL;
+        }
+
         return this;
     }
 
     public Stopwatch clear() {
-        if (stop == NULL) {
-            throw new StopwatchException("Stopwatch is running");
-        }
-
         getSharedSplits().removeAll(getSplits());
         getSplits().clear();
-        return restart();
+
+        return this;
+    }
+
+    public Stopwatch restart() {
+        clear();
+
+        startTime = now();
+        splitTime = NULL;
+        pauseTime = NULL;
+
+        return this;
+    }
+
+    public boolean isRunning() {
+        return pauseTime == NULL;
+    }
+
+    public List<Split> splits() {
+        return Collections.unmodifiableList(getSplits());
     }
 
     private List<Split> getSplits() {
         return splits;
-    }
-
-    public void printSplits() {
-        printSplits(null);
-    }
-
-    public void printSplits(Consumer<Split> consumer) {
-        printSplits(consumer, getSplits());
     }
 
     private void addSplit(Split split) {
