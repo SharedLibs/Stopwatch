@@ -1,4 +1,4 @@
-package org.github.sharedlibs.stopwatch;
+package com.github.sharedlibs.stopwatch;
 
 import java.util.ArrayList;
 import java.util.Date;

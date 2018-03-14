@@ -9,7 +9,7 @@
     <version>1.0.0-Beta1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Java Stopwatch</name>
+    <name>Stopwatch Java</name>
     <description>Measuring execution time of a code snippet, method and much more.</description>
     <url>https://github.com/sharedlibs/stopwatch</url>
 
