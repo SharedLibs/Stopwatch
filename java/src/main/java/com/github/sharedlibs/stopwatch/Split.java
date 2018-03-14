@@ -21,13 +21,13 @@
  */
 package com.github.sharedlibs.stopwatch;
 
-public class Split {
+public final class Split {
 
-    final String label;
+    private final String label;
 
-    final long millis;
+    private final long millis;
 
-    Split(String label, long millis) {
+    protected Split(String label, long millis) {
         this.label = label;
         this.millis = millis;
     }

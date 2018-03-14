@@ -64,10 +64,10 @@ public class StopwatchTest {
     public void split() throws InterruptedException {
         Stopwatch sw = Stopwatch.start();
 
-        assertWait(sleep(), sw.split("l1"));
-        assertWait(sleep(), sw.split("l1"));
-        assertWait(sleep(), sw.split(null));
-        assertWait(sleep(), sw.split(""));
+        assertWait(sleep(), sw.split("l1").elapsed());
+        assertWait(sleep(), sw.split("l1").elapsed());
+        assertWait(sleep(), sw.split(null).elapsed());
+        assertWait(sleep(), sw.split("").elapsed());
 
         sw.pause();
         try {
@@ -77,7 +77,7 @@ public class StopwatchTest {
         }
 
         sw.resume();
-        assertWait(sleep(), sw.split(""));
+        assertWait(sleep(), sw.split("").elapsed());
     }
 
     @Test
@@ -93,6 +93,6 @@ public class StopwatchTest {
         sleep();
         sw.restart();
         sw.restart();
-        assertWait(sleep(), sw.split(""));
+        assertWait(sleep(), sw.split("").elapsed());
     }
 }

@@ -67,11 +67,11 @@ public final class Stopwatch {
         sharedSplits.set(new ArrayList());
     }
 
-    public static void printSharedSplits() {
-        printSplits(getSharedSplits());
+    public static void printShared() {
+        print(getSharedSplits());
     }
 
-    private static void printSplits(List<Split> splits) {
+    private static void print(List<Split> splits) {
         System.out.print(splits);
     }
 
@@ -79,26 +79,25 @@ public final class Stopwatch {
         return Collections.unmodifiableList(getSharedSplits());
     }
 
-    public void printSplits() {
-        printSplits(getSplits());
+    public void print() {
+        print(getSplits());
     }
 
     public long elapsed() {
         return (pauseTime == NULL ? now() : pauseTime) - startTime;
     }
 
-    public long split(String label) throws StopwatchException {
+    public Stopwatch split(String label) throws StopwatchException {
         long now = now();
 
         if (pauseTime != NULL) {
             throw new StopwatchException("Stopwatch is paused");
         }
 
-        long elapsed = now - (splitTime != NULL ? splitTime : startTime);
+        addSplit(new Split(label, now - (splitTime != NULL ? splitTime : startTime)));
         splitTime = now;
-        addSplit(new Split(label, elapsed));
 
-        return elapsed;
+        return this;
     }
 
     public Stopwatch pause() {
