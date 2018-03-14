@@ -1,13 +1,12 @@
-import com.github.sharedlibs.stopwatch.SW;
+import com.github.sharedlibs.stopwatch.Stopwatch;
 import org.junit.Test;
-import org.junit.rules.Stopwatch;
 
-public class SWTest {
+public class StopwatchTest {
 
 
     @Test
     public void x() throws InterruptedException {
-        SW sw = SW.start();
+        Stopwatch sw = Stopwatch.start();
         sw.split("xxxx");
 
         Thread.sleep(111);

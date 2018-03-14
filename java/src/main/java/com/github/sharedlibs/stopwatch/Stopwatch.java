@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 
-public final class SW {
+public final class Stopwatch {
 
     private static ThreadLocal<List<Split>> sharedSplits = new ThreadLocal();
 
@@ -19,7 +19,7 @@ public final class SW {
 
     private long stop = NULL;
 
-    private SW() {
+    private Stopwatch() {
         start = now();
     }
 
@@ -27,13 +27,13 @@ public final class SW {
         return new Date().getTime();
     }
 
-    public static SW start() {
-        return new SW();
+    public static Stopwatch start() {
+        return new Stopwatch();
     }
 
     private static List<Split> getSharedSplits() {
         if (sharedSplits.get() == null) {
-            synchronized (SW.class) {
+            synchronized (Stopwatch.class) {
                 if (sharedSplits.get() == null) {
                     initSharedSplits();
                 }
@@ -88,14 +88,14 @@ public final class SW {
         return stop - start;
     }
 
-    public SW restart() {
+    public Stopwatch restart() {
         //start = now();
 //        split = NULL;
         stop = NULL;
         return this;
     }
 
-    public SW clear() {
+    public Stopwatch clear() {
         getSharedSplits().removeAll(getSplits());
         getSplits().clear();
         return restart();
