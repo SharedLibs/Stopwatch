@@ -87,17 +87,18 @@ public final class Stopwatch {
         return (pauseTime == NULL ? now() : pauseTime) - startTime;
     }
 
-    public Stopwatch split(String label) throws StopwatchException {
+    public Split split(String label) throws StopwatchException {
         long now = now();
 
         if (pauseTime != NULL) {
             throw new StopwatchException("Stopwatch is paused");
         }
 
-        addSplit(new Split(label, now - (splitTime != NULL ? splitTime : startTime)));
+        Split split = new Split(this, label, now - (splitTime != NULL ? splitTime : startTime));
+        addSplit(split);
         splitTime = now;
 
-        return this;
+        return split;
     }
 
     public Stopwatch pause() {

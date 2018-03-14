@@ -23,17 +23,33 @@ package com.github.sharedlibs.stopwatch;
 
 public final class Split {
 
+    private final Stopwatch sw;
+
     private final String label;
 
     private final long millis;
 
-    protected Split(String label, long millis) {
+    protected Split(Stopwatch sw, String label, long millis) {
+        this.sw = sw;
         this.label = label;
         this.millis = millis;
+    }
+
+    public Stopwatch sw() {
+        return sw;
+    }
+
+    public String label() {
+        return label;
+    }
+
+    public long millis() {
+        return millis;
     }
 
     @Override
     public String toString() {
         return label + ": " + millis;
     }
+
 }
