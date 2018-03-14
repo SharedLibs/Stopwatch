@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/stopwatch.iml" filepath="$PROJECT_DIR$/.idea/stopwatch.iml" />
+      <module fileurl="file://$PROJECT_DIR$/java/stopwatch-java.iml" filepath="$PROJECT_DIR$/java/stopwatch-java.iml" />
+    </modules>
+  </component>
+</project>

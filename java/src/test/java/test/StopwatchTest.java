@@ -19,11 +19,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.sharedlibs.stopwatch;
+package test;
 
-public class StopwatchException extends RuntimeException {
+import com.github.sharedlibs.stopwatch.Stopwatch;
+import org.junit.Test;
 
-    public StopwatchException(String message) {
-        super(message);
+import static java.lang.Thread.sleep;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class StopwatchTest {
+
+    @Test
+    public void startStop() throws InterruptedException {
+        Stopwatch sw = Stopwatch.start();
+        long wait = 100;
+        double tolerance = 1.1;
+
+        sleep(wait);
+        long end = sw.stop();
+        assertEquals(end, sw.elapsed());
+        assertTrue(end > wait && end < wait * tolerance);
+
+        sleep(wait);
+        assertEquals(end, sw.stop());
+        assertEquals(end, sw.elapsed());
+
+        end = sw.elapsed();
+        assertTrue(end > wait && end < wait * tolerance);
     }
 }
