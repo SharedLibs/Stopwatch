@@ -47,43 +47,49 @@ public final class SW {
         sharedSplits.set(new ArrayList());
     }
 
-    public static void printShared() {
-        print(null, getSharedSplits());
+    public static void printSharedSplits() {
+        printSharedSplits(null);
     }
 
-    public static void printShared(Consumer<Split> consumer) {
-        print(consumer, getSharedSplits());
+    public static void printSharedSplits(Consumer<Split> consumer) {
+        printSplits(consumer, getSharedSplits());
     }
 
-    public static void print(Consumer<Split> consumer, List<Split> list) {
+    private static void printSplits(Consumer<Split> consumer, List<Split> splits) {
         if (consumer != null) {
-            for (Split split : list) {
-                consumer.accept(split);
-            }
+            splits.forEach(split -> consumer.accept(split));
+        } else {
+            System.out.print(splits);
         }
     }
 
-    private List<Split> getSplits() {
-        return splits;
+    public long split(String label) throws StopwatchException {
+        if (stop != NULL) {
+            throw new StopwatchException("Stopwatch is stopped");
+        }
+
+        split = now();
+        //stop = now();
+        long elapsed = split - start;
+
+        addSplit(new Split(label, elapsed));
+        restart();
+
+        return elapsed;
     }
 
-    public void print() {
-        print(null, getSplits());
-    }
+    public long stop() {
+        if (stop == NULL) {
+            stop = now();
+        }
 
-    public void print(Consumer<Split> consumer) {
-        print(consumer, getSplits());
-    }
-
-    private void addSplit(Split split) {
-        getSplits().add(split);
-        getSharedSplits().add(split);
+        return stop - start;
     }
 
     public SW restart() {
-        start = now();
+        //start = now();
+//        split = NULL;
         stop = NULL;
-        split = NULL;
         return this;
     }
 
@@ -93,35 +99,20 @@ public final class SW {
         return restart();
     }
 
-    public long millis() {
-        return (stop == NULL ? now() : stop) - start;
+    private List<Split> getSplits() {
+        return splits;
     }
 
-    public long split(String label) {
-        stop = now();
-        split = now();
-        long elapsed = split - start;
-
-        addSplit(new Split(label, elapsed));
-        restart();
-
-        return elapsed;
+    public void printSplits() {
+        printSplits(null);
     }
 
-    public class Split {
+    public void printSplits(Consumer<Split> consumer) {
+        printSplits(consumer, getSplits());
+    }
 
-        final String label;
-
-        final long millis;
-
-        Split(String label, long millis) {
-            this.label = label;
-            this.millis = millis;
-        }
-
-        @Override
-        public String toString() {
-            return label + ": " + millis;
-        }
+    private void addSplit(Split split) {
+        getSplits().add(split);
+        getSharedSplits().add(split);
     }
 }
