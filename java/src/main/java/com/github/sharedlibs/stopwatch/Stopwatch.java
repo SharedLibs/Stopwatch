@@ -89,13 +89,15 @@ public final class Stopwatch {
     }
 
     public long split(String label) throws StopwatchException {
+        long now = now();
+
         if (stop != NULL) {
             throw new StopwatchException("Stopwatch is stopped");
         }
 
         //split = now();
         //stop = now();
-        long now = now();
+
         long elapsed = now - (lastSplit != NULL ? lastSplit : start);
         lastSplit = now;
 
@@ -121,6 +123,10 @@ public final class Stopwatch {
     }
 
     public Stopwatch clear() {
+        if (stop == NULL) {
+            throw new StopwatchException("Stopwatch is running");
+        }
+
         getSharedSplits().removeAll(getSplits());
         getSplits().clear();
         return restart();

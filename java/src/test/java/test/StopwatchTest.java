@@ -22,30 +22,61 @@
 package test;
 
 import com.github.sharedlibs.stopwatch.Stopwatch;
+import com.github.sharedlibs.stopwatch.StopwatchException;
+import org.apache.commons.lang3.Range;
 import org.junit.Test;
 
-import static java.lang.Thread.sleep;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.apache.commons.lang3.RandomUtils.nextLong;
+import static org.junit.Assert.*;
 
 public class StopwatchTest {
 
+    private static final long WAIT_MIN = 100;
+    private static final long WAIT_MAX = 500;
+    private static final double TOLERANCE = 1.15;
+
     @Test
-    public void startStop() throws InterruptedException {
+    public void startAndStop() throws InterruptedException {
         Stopwatch sw = Stopwatch.start();
-        long wait = 100;
-        double tolerance = 1.1;
 
-        sleep(wait);
-        long end = sw.stop();
-        assertEquals(end, sw.elapsed());
-        assertTrue(end > wait && end < wait * tolerance);
+        long wait = sleep();
+        long stop = sw.stop();
+        assertEquals(stop, sw.elapsed());
+        assertWait(wait, stop);
 
-        sleep(wait);
-        assertEquals(end, sw.stop());
-        assertEquals(end, sw.elapsed());
+        sleep();
+        assertEquals(stop, sw.stop());
+        assertEquals(stop, sw.elapsed());
+    }
 
-        end = sw.elapsed();
-        assertTrue(end > wait && end < wait * tolerance);
+    @Test
+    public void split() throws InterruptedException {
+        Stopwatch sw = Stopwatch.start();
+
+        assertWait(sleep(), sw.split("l1"));
+        assertWait(sleep(), sw.split("l1"));
+        assertWait(sleep(), sw.split(null));
+        assertWait(sleep(), sw.split(""));
+
+        sw.stop();
+        try {
+            sw.split("");
+            fail();
+        } catch (StopwatchException cause) {
+        }
+
+        sw.restart();
+        assertWait(sleep(), sw.split(""));
+    }
+
+    static private long sleep() throws InterruptedException {
+        long wait = nextLong(WAIT_MIN, WAIT_MAX);
+        Thread.sleep(wait);
+
+        return wait;
+    }
+
+    static private void assertWait(long wait, long value) {
+        assertTrue(Range.between((double) wait, wait * TOLERANCE).contains((double) value));
     }
 }
