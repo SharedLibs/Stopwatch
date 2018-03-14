@@ -15,11 +15,12 @@ public final class SW {
 
     private long start;
 
-    private long split = NULL;
+    private long lastSplit = NULL;
 
     private long stop = NULL;
 
     private SW() {
+        start = now();
     }
 
     private static long now() {
@@ -27,8 +28,7 @@ public final class SW {
     }
 
     public static SW start() {
-        SW stopwatch = new SW();
-        return stopwatch.restart();
+        return new SW();
     }
 
     private static List<Split> getSharedSplits() {
@@ -68,12 +68,14 @@ public final class SW {
             throw new StopwatchException("Stopwatch is stopped");
         }
 
-        split = now();
+        //split = now();
         //stop = now();
-        long elapsed = split - start;
+        long now = now();
+        long elapsed = now - (lastSplit != NULL ? lastSplit : start);
+        lastSplit = now;
 
         addSplit(new Split(label, elapsed));
-        restart();
+//        restart();
 
         return elapsed;
     }
