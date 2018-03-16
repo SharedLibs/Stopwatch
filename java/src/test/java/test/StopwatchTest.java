@@ -27,7 +27,9 @@ import org.apache.commons.lang3.Range;
 import org.junit.Test;
 
 import static org.apache.commons.lang3.RandomUtils.nextLong;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class StopwatchTest {
 
@@ -42,32 +44,52 @@ public class StopwatchTest {
         return wait;
     }
 
-    static private void assertWait(long wait, long value) {
-        assertTrue(Range.between((double) wait, wait * TOLERANCE).contains((double) value));
+    static private void assertTolerantEquals(long expected, long value) {
+        assertTrue(Range.between((double) expected, expected * TOLERANCE).contains((double) value));
     }
 
     @Test
-    public void startAndStop() throws InterruptedException {
+    public void start() throws InterruptedException {
         Stopwatch sw = Stopwatch.start();
+        assertTolerantEquals(0, sw.elapsed());
 
         long wait = sleep();
-        long stop = sw.pause().elapsed();
-        assertEquals(stop, sw.elapsed());
-        assertWait(wait, stop);
+        assertTolerantEquals(wait, sw.elapsed());
+
+        for (int i = 0; i < 10; i++) {
+            wait += sleep();
+            assertTolerantEquals(wait, sw.elapsed());
+        }
+    }
+
+    @Test
+    public void pause() throws InterruptedException {
+        Stopwatch sw = Stopwatch.start();
+
+        long elapsed = sw.pause().elapsed();
+        assertTolerantEquals(0, elapsed);
+
+        for (int i = 0; i < 10; i++) {
+            sw.resume();
+            elapsed += sleep();
+            assertTolerantEquals(elapsed, sw.pause().elapsed());
+
+            sleep();
+            assertTolerantEquals(elapsed, sw.elapsed());
+        }
 
         sleep();
-        assertEquals(stop, sw.pause());
-        assertEquals(stop, sw.elapsed());
+        assertTolerantEquals(elapsed, sw.pause().elapsed());
     }
 
     @Test
     public void split() throws InterruptedException {
         Stopwatch sw = Stopwatch.start();
 
-        assertWait(sleep(), sw.split("l1").millis());
-        assertWait(sleep(), sw.split("l1").millis());
-        assertWait(sleep(), sw.split(null).millis());
-        assertWait(sleep(), sw.split("").millis());
+        assertTolerantEquals(sleep(), sw.split("l1").millis());
+        assertTolerantEquals(sleep(), sw.split("l1").millis());
+        assertTolerantEquals(sleep(), sw.split(null).millis());
+        assertTolerantEquals(sleep(), sw.split("").millis());
 
         sw.pause();
         try {
@@ -77,7 +99,7 @@ public class StopwatchTest {
         }
 
         sw.resume();
-        assertWait(sleep(), sw.split("").millis());
+        assertTolerantEquals(sleep(), sw.split("").millis());
     }
 
     @Test
@@ -88,11 +110,19 @@ public class StopwatchTest {
         sw.pause();
         sleep();
         sw.restart();
-        assertWait(sleep(), sw.pause().elapsed());
+        assertTolerantEquals(sleep(), sw.pause().elapsed());
 
         sleep();
         sw.restart();
         sw.restart();
-        assertWait(sleep(), sw.split("").millis());
+        assertTolerantEquals(sleep(), sw.split("").millis());
+    }
+
+    @Test
+    public void clear() throws InterruptedException {
+        Stopwatch sw = Stopwatch.start();
+
+        sleep();
+        assertEquals(0, sw.pause().clear().elapsed());
     }
 }

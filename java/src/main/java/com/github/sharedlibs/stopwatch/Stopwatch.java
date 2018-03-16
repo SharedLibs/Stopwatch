@@ -28,17 +28,15 @@ import java.util.List;
 
 public final class Stopwatch {
 
-    private static ThreadLocal<List<Split>> sharedSplits = new ThreadLocal();
+//    private static ThreadLocal<List<Split>> sharedSplits = new ThreadLocal();
 
-    private static long NULL = -1;
+    private static final long NULL = -1;
 
     private List<Split> splits = new ArrayList();
 
-    private long startTime;
-
-    private long splitTime;
-
-    private long pauseTime;
+    private long startTime = NULL;
+    private long splitTime = NULL;
+    private long pauseTime = NULL;
 
     private Stopwatch() {
     }
@@ -48,53 +46,58 @@ public final class Stopwatch {
     }
 
     public static Stopwatch start() {
-        return new Stopwatch().restart();
+        return new Stopwatch().run();
     }
 
-    private static List<Split> getSharedSplits() {
-        if (sharedSplits.get() == null) {
-            synchronized (Stopwatch.class) {
-                if (sharedSplits.get() == null) {
-                    initSharedSplits();
-                }
-            }
-        }
-
-        return sharedSplits.get();
+    private Stopwatch run() {
+        startTime = now();
+        return this;
     }
 
-    private static void initSharedSplits() {
-        sharedSplits.set(new ArrayList());
-    }
+//    private static List<Split> getSharedSplits() {
+//        if (sharedSplits.get() == null) {
+//            synchronized (Stopwatch.class) {
+//                if (sharedSplits.get() == null) {
+//                    initSharedSplits();
+//                }
+//            }
+//        }
+//
+//        return sharedSplits.get();
+//    }
 
-    public static void printShared() {
-        print(getSharedSplits());
-    }
+//    private static void initSharedSplits() {
+//        sharedSplits.set(new ArrayList());
+//    }
+//
+//    public static void printShared() {
+//        print(getSharedSplits());
+//    }
 
     private static void print(List<Split> splits) {
         System.out.print(splits);
     }
 
-    public static List<Split> sharedSplits() {
-        return Collections.unmodifiableList(getSharedSplits());
-    }
+//    public static List<Split> sharedSplits() {
+//        return Collections.unmodifiableList(getSharedSplits());
+//    }
 
     public void print() {
-        print(getSplits());
+        print(splits);
     }
 
     public long elapsed() {
-        return (pauseTime == NULL ? now() : pauseTime) - startTime;
+        return (isNull(pauseTime) ? now() : pauseTime) - (isNull(startTime) ? now() : startTime);
     }
 
     public Split split(String label) throws StopwatchException {
         long now = now();
 
-        if (pauseTime != NULL) {
+        if (!isRunning()) {
             throw new StopwatchException("Stopwatch is paused");
         }
 
-        Split split = new Split(this, label, now - (splitTime != NULL ? splitTime : startTime));
+        Split split = new Split(this, label, now - (isNull(splitTime) ? startTime : splitTime));
         addSplit(split);
         splitTime = now;
 
@@ -115,7 +118,7 @@ public final class Stopwatch {
             long stopped = now - pauseTime;
 
             startTime += stopped;
-            splitTime = (splitTime == NULL ? NULL : splitTime + stopped);
+            splitTime = (isNull(splitTime) ? NULL : splitTime + stopped);
             pauseTime = NULL;
         }
 
@@ -123,36 +126,45 @@ public final class Stopwatch {
     }
 
     public Stopwatch clear() {
-        getSharedSplits().removeAll(getSplits());
-        getSplits().clear();
+        if (isRunning()) {
+            throw new StopwatchException("Stopwatch is running");
+        }
 
-        return this;
-    }
-
-    public Stopwatch restart() {
-        clear();
-
-        startTime = now();
+//        getSharedSplits().removeAll(getSplits());
+        splits.clear();
+        startTime = NULL;
         splitTime = NULL;
         pauseTime = NULL;
 
         return this;
     }
 
+    public Stopwatch restart() {
+        pause();
+        clear();
+        run();
+
+        return this;
+    }
+
     public boolean isRunning() {
-        return pauseTime == NULL;
+        return isNull(pauseTime);
     }
 
     public List<Split> splits() {
-        return Collections.unmodifiableList(getSplits());
+        return Collections.unmodifiableList(splits);
     }
 
-    private List<Split> getSplits() {
-        return splits;
+//    private List<Split> getSplits() {
+//        return splits;
+//    }
+
+    private boolean isNull(long value) {
+        return value == NULL;
     }
 
     private void addSplit(Split split) {
-        getSplits().add(split);
-        getSharedSplits().add(split);
+        splits.add(split);
+//        getSharedSplits().add(split);
     }
 }
