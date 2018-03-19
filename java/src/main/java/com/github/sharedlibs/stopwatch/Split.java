@@ -47,6 +47,11 @@ public final class Split {
         return millis;
     }
 
+    public Stopwatch discard() {
+        sw.discardSplit(this);
+        return sw;
+    }
+
     @Override
     public String toString() {
         return label + ": " + millis;

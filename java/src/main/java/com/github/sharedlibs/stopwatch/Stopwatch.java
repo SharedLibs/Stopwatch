@@ -28,8 +28,6 @@ import java.util.List;
 
 public final class Stopwatch {
 
-//    private static ThreadLocal<List<Split>> sharedSplits = new ThreadLocal();
-
     private static final long NULL = -1;
 
     private List<Split> splits = new ArrayList();
@@ -54,54 +52,13 @@ public final class Stopwatch {
         return this;
     }
 
-//    private static List<Split> getSharedSplits() {
-//        if (sharedSplits.get() == null) {
-//            synchronized (Stopwatch.class) {
-//                if (sharedSplits.get() == null) {
-//                    initSharedSplits();
-//                }
-//            }
-//        }
-//
-//        return sharedSplits.get();
-//    }
-
-//    private static void initSharedSplits() {
-//        sharedSplits.set(new ArrayList());
-//    }
-//
-//    public static void printShared() {
-//        print(getSharedSplits());
-//    }
-
-    private static void print(List<Split> splits) {
-        System.out.print(splits);
+    public boolean isRunning() {
+        return !isNull(startTime) && isNull(pauseTime);
     }
 
-//    public static List<Split> sharedSplits() {
-//        return Collections.unmodifiableList(getSharedSplits());
-//    }
-
-    public void print() {
-        print(splits);
-    }
 
     public long elapsed() {
         return (isNull(pauseTime) ? now() : pauseTime) - (isNull(startTime) ? now() : startTime);
-    }
-
-    public Split split(String label) throws StopwatchException {
-        long now = now();
-
-        if (!isRunning()) {
-            throw new StopwatchException("Stopwatch is paused");
-        }
-
-        Split split = new Split(this, label, now - (isNull(splitTime) ? startTime : splitTime));
-        addSplit(split);
-        splitTime = now;
-
-        return split;
     }
 
     public Stopwatch pause() {
@@ -125,18 +82,26 @@ public final class Stopwatch {
         return this;
     }
 
-    public Stopwatch clear() {
-        if (isRunning()) {
-            throw new StopwatchException("Stopwatch is running");
+    public Split split(String label) throws IllegalStateException {
+        long now = now();
+
+        if (!isRunning()) {
+            throw new IllegalStateException("Stopwatch is paused");
         }
 
-//        getSharedSplits().removeAll(getSplits());
-        splits.clear();
-        startTime = NULL;
-        splitTime = NULL;
-        pauseTime = NULL;
+        Split split = new Split(this, label, now - (isNull(splitTime) ? startTime : splitTime));
+        splits.add(split);
+        splitTime = now;
 
-        return this;
+        return split;
+    }
+
+    public List<Split> splits() {
+        return Collections.unmodifiableList(splits);
+    }
+
+    protected void discardSplit(Split split) {
+        splits.remove(split);
     }
 
     public Stopwatch restart() {
@@ -147,24 +112,24 @@ public final class Stopwatch {
         return this;
     }
 
-    public boolean isRunning() {
-        return isNull(pauseTime);
+    public Stopwatch clear() throws IllegalStateException {
+        if (isRunning()) {
+            throw new IllegalStateException("Stopwatch is running");
+        }
+
+        splits.clear();
+        startTime = NULL;
+        splitTime = NULL;
+        pauseTime = NULL;
+
+        return this;
     }
 
-    public List<Split> splits() {
-        return Collections.unmodifiableList(splits);
+    public void print() {
+        System.out.print(splits);
     }
-
-//    private List<Split> getSplits() {
-//        return splits;
-//    }
 
     private boolean isNull(long value) {
         return value == NULL;
-    }
-
-    private void addSplit(Split split) {
-        splits.add(split);
-//        getSharedSplits().add(split);
     }
 }

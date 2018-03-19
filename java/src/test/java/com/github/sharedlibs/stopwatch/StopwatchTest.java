@@ -19,17 +19,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package test;
+package com.github.sharedlibs.stopwatch;
 
-import com.github.sharedlibs.stopwatch.Stopwatch;
-import com.github.sharedlibs.stopwatch.StopwatchException;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.Range;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.apache.commons.lang3.RandomUtils.nextLong;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class StopwatchTest {
 
@@ -63,6 +63,32 @@ public class StopwatchTest {
     }
 
     @Test
+    public void isRunning() {
+        Stopwatch sw = Stopwatch.start();
+
+        assertTrue(sw.isRunning());
+        assertFalse(sw.pause().isRunning());
+        assertTrue(sw.resume().isRunning());
+        assertFalse(sw.pause().clear().isRunning());
+        assertTrue(sw.restart().isRunning());
+        assertTrue(sw.resume().restart().isRunning());
+        assertTrue(sw.restart().isRunning());
+    }
+
+    @Test
+    public void elapsed() throws InterruptedException {
+        Stopwatch sw = Stopwatch.start();
+        long elapsed = 0;
+
+        assertTolerantEquals(elapsed, sw.elapsed());
+
+        for (int i = 0; i < 10; i++) {
+            elapsed += sleep();
+            assertTolerantEquals(elapsed, sw.elapsed());
+        }
+    }
+
+    @Test
     public void pause() throws InterruptedException {
         Stopwatch sw = Stopwatch.start();
 
@@ -83,6 +109,10 @@ public class StopwatchTest {
     }
 
     @Test
+    public void resume() throws InterruptedException {
+    }
+
+    @Test
     public void split() throws InterruptedException {
         Stopwatch sw = Stopwatch.start();
 
@@ -95,11 +125,27 @@ public class StopwatchTest {
         try {
             sw.split("");
             fail();
-        } catch (StopwatchException cause) {
+        } catch (IllegalStateException cause) {
         }
 
         sw.resume();
         assertTolerantEquals(sleep(), sw.split("").millis());
+    }
+
+    @Test
+    public void splits() throws InterruptedException {
+        Stopwatch sw = Stopwatch.start();
+
+        List<Split> splits = new ArrayList();
+        for (int i = 0; i < 10; i++) {
+            sleep();
+            splits.add(sw.split(RandomStringUtils.random(10)));
+        }
+
+        assertEquals(splits, sw.splits());
+
+        sw.split("temp").discard();
+        assertEquals(splits, sw.splits());
     }
 
     @Test
