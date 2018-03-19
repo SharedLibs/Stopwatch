@@ -1,4 +1,7 @@
-## Welcome to GitHub Pages
+
+![Alamofire: Elegant Networking in Swift](art/stopwatch.png)
+
+## Stopwatch
 
 You can use the [editor on GitHub](https://github.com/zyc/Stopwatch/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
 
